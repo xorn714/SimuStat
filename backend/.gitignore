@@ -1,0 +1,17 @@
+# Entornos virtuales
+venv/
+venv3/
+env/
+
+# Dependencias de Python
+lib/
+Lib/
+include/
+.venv/
+
+# Archivos de sistema y caché
+__pycache__/
+*.py[cod]
+
+# Archivos de desarrollo
+.DS_Store

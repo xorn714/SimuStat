@@ -1,6 +1,6 @@
 # SimuStat 📊⚙️
 
-**SimuStat** es una plataforma interactiva web diseñada para la generación, simulación y validación estadística de variables aleatorias. El proyecto implementa algoritmos de generación uniforme, pruebas formales de validación estadística y simuladores de variables discretas, facilitando la comprensión y el análisis de sistemas de simulación de eventos discretos.
+**SimuStat** es una plataforma interactiva web diseñada para la generación y validación estadística de números pseudoaleatorios. El proyecto implementa algoritmos de generación de variables uniformes y aplica pruebas formales de validación estadística para certificar la calidad de las secuencias generadas, facilitando la comprensión y el análisis de sistemas de simulación.
 
 ---
 
@@ -69,17 +69,6 @@ Determina si la distribución de la muestra empírica difiere significativamente
         $$D^- = \max_{1 \leq i \leq n} \left( r_{(i)} - \frac{i-1}{n} \right)$$
     3.  Calcular el estadístico de contraste: $D = \max(D^+, D^-)$.
 *   **Criterio**: Si $D < d_{\alpha, n}$ (valor crítico de la tabla KS para un tamaño de muestra $n$ y nivel de significancia $\alpha$), se concluye que los números siguen una **distribución uniforme**.
-
----
-
-### 3. Simuladores de Variables Discretas
-Una vez validados los números uniformes, se utilizan como base para simular variables discretas no uniformes (especificadas mediante tablas de probabilidad) utilizando dos métodos:
-
-*   **Método de Inversión (para Variables Discretas)**:
-    Dado una variable aleatoria discreta $X$ que toma valores $x_i$ con probabilidades $p_i$, se construye la distribución acumulada $F(x_k) = \sum_{i=1}^k p_i$. Para cada número pseudoaleatorio generado $r_j \in [0, 1)$, se asigna el valor $x_k$ tal que:
-    $$F(x_{k-1}) \leq r_j < F(x_k)$$
-*   **Método de Composición**:
-    Se utiliza cuando la función de distribución de probabilidad de la variable discreta puede expresarse como una combinación lineal o mezcla de otras distribuciones de probabilidad más sencillas. Se genera un número aleatorio para seleccionar cuál sub-distribución utilizar, y luego se genera otro número aleatorio usando dicha distribución elegida.
 
 ---
 

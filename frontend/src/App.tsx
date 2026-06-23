@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Beaker, Calculator, CheckCircle2, TrendingUp } from 'lucide-react'
+import { Beaker, Calculator, CheckCircle2 } from 'lucide-react'
 
 function App() {
   const [count, setCount] = useState(0)
@@ -16,8 +16,8 @@ function App() {
           SimuStat
         </h1>
         <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
-          Generación y validación de variables aleatorias uniformes y discretas mediante
-          Método de Composición, Inversión, Congruencial y Cuadrados Medios.
+          Generación y validación de números pseudoaleatorios uniformes mediante
+          el Método Congruencial y el Método de Cuadrados Medios.
         </p>
       </div>
 
@@ -44,15 +44,7 @@ function App() {
           </p>
         </div>
 
-        <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl hover:border-pink-500/50 transition-all duration-300 group md:col-span-2">
-          <div className="w-12 h-12 rounded-xl bg-pink-500/10 border border-pink-500/30 flex items-center justify-center text-pink-400 mb-4 group-hover:scale-110 transition-transform">
-            <TrendingUp className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Variables Discretas</h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Simulación de variables aleatorias discretas a través de los métodos de <strong>Composición</strong> e <strong>Inversión</strong> para modelar escenarios probabilísticos complejos basados en distribuciones de probabilidad no uniformes.
-          </p>
-        </div>
+
       </div>
 
       {/* Connection Test / Status */}

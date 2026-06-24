@@ -117,15 +117,23 @@ def mid_square(semilla: int, n: int, digits: int = None) -> list[float]:
     results = []
     x = semilla
     divisor = 10 ** digits
-    start = digits // 2
-    end = start + digits
 
     for _ in range(n):
         squared = x ** 2
-        # Rellenar con ceros a la izquierda hasta 2 * digits
-        squared_str = str(squared).zfill(2 * digits)
+        squared_str = str(squared)
         
-        # Extraer los dígitos centrales
+        # Si tiene menos dígitos que los requeridos, rellenamos con ceros a la izquierda
+        if len(squared_str) < digits:
+            squared_str = squared_str.zfill(digits)
+            
+        # Si la longitud es impar, añadimos un cero a la izquierda para hacerla par
+        if len(squared_str) % 2 != 0:
+            squared_str = "0" + squared_str
+            
+        # Extraer los dígitos centrales dinámicamente
+        total_len = len(squared_str)
+        start = (total_len - digits) // 2
+        end = start + digits
         mid_str = squared_str[start:end]
         x = int(mid_str)
         results.append(x / divisor)

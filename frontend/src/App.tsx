@@ -1,63 +1,75 @@
 import { useState } from 'react'
-import { Beaker, Calculator, CheckCircle2 } from 'lucide-react'
-
+import { Navbar } from './components/layout/navbar'
+import { Sidebar } from './components/layout/sidebar'
+import { Dashboard } from './features/dashboard/Dashboard'
+import type { SidebarTabType, GeneratorParams } from './components/layout/sidebar'
 function App() {
-  const [count, setCount] = useState(0)
+  const [activeSidebarTab, setActiveSidebarTab] = useState<SidebarTabType>('dashboard')
+  const [lastParams, setLastParams] = useState<GeneratorParams | null>(null)
+
+  const handleGenerate = (params: GeneratorParams) => {
+    setLastParams(params)
+    // Cambiar automáticamente a la vista de simulación para mostrar los resultados
+    setActiveSidebarTab('simulacion')
+    console.log('Parámetros generados:', params)
+  }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col items-center justify-center p-6 selection:bg-purple-500 selection:text-white">
-      {/* Header / Brand */}
-      <div className="max-w-4xl w-full text-center space-y-4">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-purple-500/30 bg-purple-500/10 text-purple-400 text-sm font-medium mb-2 animate-pulse">
-          <Beaker className="w-4 h-4" />
-          Simuladores y Validación Estadística
-        </div>
-        <h1 className="text-5xl md:text-6xl font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400">
-          SimuStat
-        </h1>
-        <p className="text-lg md:text-xl text-slate-400 max-w-2xl mx-auto">
-          Generación y validación de números pseudoaleatorios uniformes mediante
-          el Método Congruencial y el Método de Cuadrados Medios.
-        </p>
-      </div>
+    <div className="min-h-screen bg-neutral text-slate-100 flex flex-col font-body">
+      {/* Barra de navegación superior */}
+      <Navbar />
 
-      {/* Main Grid Details */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl w-full mt-12">
-        <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl hover:border-purple-500/50 transition-all duration-300 group">
-          <div className="w-12 h-12 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
-            <Calculator className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Generadores Uniformes</h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Implementación de algoritmos de <strong>Método Congruencial</strong> (Lineal y Multiplicativo) y <strong>Método de Cuadrados Medios</strong> para la generación de secuencias pseudoaleatorias.
-          </p>
-        </div>
+      {/* Contenedor principal con sidebar y contenido */}
+      <div className="flex flex-1">
+        {/* Barra lateral */}
+        <Sidebar
+          activeTab={activeSidebarTab}
+          setActiveTab={setActiveSidebarTab}
+          onGenerate={handleGenerate}
+        />
 
-        <div className="p-6 rounded-2xl border border-slate-800 bg-slate-900/50 backdrop-blur-xl hover:border-indigo-500/50 transition-all duration-300 group">
-          <div className="w-12 h-12 rounded-xl bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center text-indigo-400 mb-4 group-hover:scale-110 transition-transform">
-            <CheckCircle2 className="w-6 h-6" />
-          </div>
-          <h2 className="text-xl font-bold text-white mb-2">Pruebas de Validación</h2>
-          <p className="text-slate-400 text-sm leading-relaxed">
-            Validación de los conjuntos de números generados mediante tres pruebas estadísticas fundamentales:
-            <strong>Prueba de Media</strong>, <strong>Prueba de Varianza</strong> y <strong>Prueba de Bondad de Ajuste Kolmogorov-Smirnov</strong>.
-          </p>
-        </div>
+        {/* Panel de contenido */}
+        <main className="flex-1 p-8 overflow-y-auto">
+          {activeSidebarTab === 'dashboard' && (
+            <div className="space-y-4">
+              <h1 className="text-3xl font-black text-white font-headline">Dashboard</h1>
+              <p className="text-slate-400">Panel principal de SimuStat — resultados de la simulación activa.</p>
+              <Dashboard data={null} />
+            </div>
+          )}
 
+          {activeSidebarTab === 'simulacion' && (
+            <div className="space-y-4">
+              <h1 className="text-3xl font-black text-white font-headline">Simulación</h1>
+              {lastParams ? (
+                <div className="space-y-6">
+                  <div className="p-4 rounded-xl border border-primary/20 bg-primary/5">
+                    <h3 className="text-sm font-semibold text-primary font-label uppercase tracking-wider mb-2">Configuración Activa</h3>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-label text-slate-300">
+                      <div><span className="text-slate-500">Método:</span> {lastParams.method}</div>
+                      <div><span className="text-slate-500">Semilla X₀:</span> {lastParams.seed}</div>
+                      <div><span className="text-slate-500">Cantidad N:</span> {lastParams.quantity}</div>
+                      {lastParams.a !== undefined && <div><span className="text-slate-500">Constante a:</span> {lastParams.a}</div>}
+                      {lastParams.c !== undefined && <div><span className="text-slate-500">Constante c:</span> {lastParams.c}</div>}
+                      {lastParams.m !== undefined && <div><span className="text-slate-500">Módulo m:</span> {lastParams.m}</div>}
+                      {lastParams.digits !== undefined && <div><span className="text-slate-500">Dígitos:</span> {lastParams.digits}</div>}
+                    </div>
+                  </div>
+                  <p className="text-slate-400">Resultados y simulación listos para procesamiento backend...</p>
+                </div>
+              ) : (
+                <p className="text-slate-400">No se han generado datos todavía. Configure el algoritmo a la izquierda y presione "Generar".</p>
+              )}
+            </div>
+          )}
 
-      </div>
-
-      {/* Connection Test / Status */}
-      <div className="mt-12 flex flex-col items-center gap-4">
-        <button
-          onClick={() => setCount(count + 1)}
-          className="px-6 py-3 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-semibold shadow-lg shadow-purple-900/30 transition-all duration-200 active:scale-95"
-        >
-          Prueba React HMR: {count}
-        </button>
-        <span className="text-xs text-slate-500">
-          Backend API: <code className="bg-slate-900 px-2 py-1 rounded text-purple-400 font-mono">http://localhost:8000/docs</code> (Swagger UI)
-        </span>
+          {activeSidebarTab === 'historial' && (
+            <div className="space-y-4">
+              <h1 className="text-3xl font-black text-white font-headline">Historial</h1>
+              <p className="text-slate-400">Lista de secuencias pseudoaleatorias generadas anteriormente.</p>
+            </div>
+          )}
+        </main>
       </div>
     </div>
   )

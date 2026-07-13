@@ -2,7 +2,7 @@
 import pytest
 # pyrefly: ignore [missing-import]
 import numpy as np
-from app.domain.validators import mean_test, variance_test, ks_test
+from app.domain.validators import mean_test, variance_test, ks_test, runs_test
 
 def test_mean_test():
     # Una muestra perfectamente centrada
@@ -47,3 +47,25 @@ def test_ks_test():
     limits_bad, statistic_bad, passed_bad = ks_test(numbers_bad, 0.05)
     assert passed_bad is False
     assert statistic_bad >= limits_bad[1]
+
+def test_runs_test():
+    # Una secuencia perfectamente alternada: 0.1 (<0.5), 0.9 (>=0.5), 0.2 (<0.5), 0.8 (>=0.5), etc.
+    # Esto generará muchas rachas (demasiadas para ser aleatoria e independiente, por lo que NO pasa)
+    numbers = [0.1, 0.9, 0.2, 0.8, 0.1, 0.9, 0.2, 0.8, 0.1, 0.9]
+    limits, statistic, passed = runs_test(numbers, 0.05)
+    assert passed is False
+    
+    # Secuencia uniforme aleatoria más larga (debería pasar)
+    np.random.seed(42)
+    numbers_ok = np.random.uniform(0, 1, 100).tolist()
+    limits_ok, statistic_ok, passed_ok = runs_test(numbers_ok, 0.05)
+    assert passed_ok is True
+    assert limits_ok[0] <= statistic_ok <= limits_ok[1]
+
+    # Secuencia no independiente (todos de un lado)
+    numbers_bad = [0.1] * 10
+    limits_bad, statistic_bad, passed_bad = runs_test(numbers_bad, 0.05)
+    assert passed_bad is False
+    assert statistic_bad == float('inf')
+
+

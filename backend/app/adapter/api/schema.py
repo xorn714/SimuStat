@@ -70,3 +70,8 @@ class SimulationResponse(BaseModel):
         ...,
         description="Resultado detallado de la prueba de bondad de ajuste Kolmogorov-Smirnov (KS)"
     )
+    streak_test: TestResult = Field(
+        ...,
+        description="Resultado detallado de la prueba de rachas (streak/runs test) arriba y abajo de la media"
+    )
+

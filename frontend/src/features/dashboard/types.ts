@@ -10,4 +10,6 @@ export interface SimulationData {
   mean_test: TestResult
   variance_test: TestResult
   ks_test: TestResult
+  streak_test: TestResult
 }
+

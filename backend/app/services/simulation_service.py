@@ -5,7 +5,8 @@ from app.domain.generators import (
     mid_square,
     GeneratorValidationError
 )
-from app.domain.validators import mean_test, variance_test, ks_test
+from app.domain.validators import mean_test, variance_test, ks_test, runs_test
+
 
 
 class SimulationService:
@@ -88,10 +89,21 @@ class SimulationService:
             passed=ks_passed
         )
 
+        # Prueba de Rachas
+        streak_lims, streak_stat, streak_passed = runs_test(numbers, request.alpha)
+        streak_res = TestResult(
+            lower_limit=streak_lims[0],
+            upper_limit=streak_lims[1],
+            statistic=streak_stat,
+            passed=streak_passed
+        )
+
         # 3. Construcción y retorno de la respuesta estructurada
         return SimulationResponse(
             numbers=numbers,
             mean_test=mean_res,
             variance_test=var_res,
-            ks_test=ks_res
+            ks_test=ks_res,
+            streak_test=streak_res
         )
+

@@ -1,7 +1,8 @@
 import type { SimulationData } from '../features/dashboard/types'
 import type { GeneratorParams } from '../components/layout/sidebar'
 
-const API_BASE_URL = 'http://localhost:8000/api/v1'
+const IS_PRODUCTION = typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
+const API_BASE_URL = IS_PRODUCTION ? '/api/v1' : 'http://localhost:8000/api/v1'
 
 function mapMethod(method: string): string {
   switch (method) {
@@ -44,7 +45,8 @@ export async function generateSequence(
 
 export async function checkBackendStatus(): Promise<boolean> {
   try {
-    const response = await fetch('http://localhost:8000/', { method: 'GET' })
+    const url = IS_PRODUCTION ? '/' : 'http://localhost:8000/'
+    const response = await fetch(url, { method: 'GET' })
     return response.ok
   } catch {
     return false

@@ -50,6 +50,14 @@ class SimulationRequest(BaseModel):
         lt=1.0,
         description="Nivel de significación para las pruebas estadísticas (estrictamente entre 0 y 1)"
     )
+    continuous_dist: Optional[str] = Field(
+        None,
+        description="Distribución continua opcional: 'uniform', 'exponential', 'normal', 'weibull' o 'none'"
+    )
+    dist_params: Optional[dict] = Field(
+        None,
+        description="Parámetros para la distribución continua elegida (ej. a, b, lambd, mean, std_dev, alpha, beta)"
+    )
 
 
 class SimulationResponse(BaseModel):
@@ -74,4 +82,17 @@ class SimulationResponse(BaseModel):
         ...,
         description="Resultado detallado de la prueba de rachas (streak/runs test) arriba y abajo de la media"
     )
+    continuous_values: Optional[List[float]] = Field(
+        None,
+        description="Valores de la variable aleatoria continua generada si fue solicitada"
+    )
+    continuous_stats: Optional[dict] = Field(
+        None,
+        description="Estadísticos empíricos y teóricos de la variable aleatoria continua"
+    )
+    histogram: Optional[dict] = Field(
+        None,
+        description="Datos de bins e histograma de frecuencias con curva de densidad teórica"
+    )
+
 

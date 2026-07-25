@@ -18,7 +18,7 @@ function mapMethod(method: string): string {
 }
 
 export async function generateSequence(
-  params: GeneratorParams & { alpha: number }
+  params: GeneratorParams
 ): Promise<SimulationData> {
   const response = await fetch(`${API_BASE_URL}/generate-sequence`, {
     method: 'POST',
@@ -32,6 +32,8 @@ export async function generateSequence(
       n: params.quantity,
       digits: params.digits,
       alpha: params.alpha,
+      continuous_dist: params.continuousDist || 'none',
+      dist_params: params.distParams || null,
     }),
   })
 
@@ -52,4 +54,3 @@ export async function checkBackendStatus(): Promise<boolean> {
     return false
   }
 }
-

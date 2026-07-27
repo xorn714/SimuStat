@@ -1,7 +1,8 @@
 import React, { useState } from 'react'
-import { Settings2, Calculator } from 'lucide-react'
+import { Settings2, Calculator, Activity } from 'lucide-react'
 
 export type GeneratorMethod = 'lineal' | 'multiplicativo' | 'cuadrados_medios'
+export type ContinuousDistType = 'none' | 'uniform' | 'exponential' | 'normal' | 'weibull'
 
 export interface GeneratorParams {
   method: GeneratorMethod
@@ -12,6 +13,16 @@ export interface GeneratorParams {
   digits?: number
   quantity: number
   alpha: number
+  continuousDist?: ContinuousDistType
+  distParams?: {
+    a?: number
+    b?: number
+    lambd?: number
+    mean?: number
+    stdDev?: number
+    alpha?: number
+    beta?: number
+  }
 }
 
 interface SidebarProps {
@@ -32,6 +43,16 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [quantity, setQuantity] = useState<string>('100')
   const [alpha, setAlpha] = useState<string>('0.05')
 
+  // Estados para variable aleatoria continua
+  const [continuousDist, setContinuousDist] = useState<ContinuousDistType>('none')
+  const [uniformA, setUniformA] = useState<string>('0')
+  const [uniformB, setUniformB] = useState<string>('10')
+  const [expLambda, setExpLambda] = useState<string>('0.5')
+  const [normMean, setNormMean] = useState<string>('0')
+  const [normStd, setNormStd] = useState<string>('1')
+  const [weiAlpha, setWeiAlpha] = useState<string>('1')
+  const [weiBeta, setWeiBeta] = useState<string>('1.5')
+
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault()
     const params: GeneratorParams = {
@@ -39,6 +60,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       seed: Number(seed),
       quantity: Number(quantity),
       alpha: Number(alpha),
+      continuousDist,
     }
 
     if (method === 'lineal' || method === 'multiplicativo') {
@@ -54,6 +76,22 @@ export const Sidebar: React.FC<SidebarProps> = ({
       params.digits = Number(digits)
     }
 
+    if (continuousDist !== 'none') {
+      params.distParams = {}
+      if (continuousDist === 'uniform') {
+        params.distParams.a = Number(uniformA)
+        params.distParams.b = Number(uniformB)
+      } else if (continuousDist === 'exponential') {
+        params.distParams.lambd = Number(expLambda)
+      } else if (continuousDist === 'normal') {
+        params.distParams.mean = Number(normMean)
+        params.distParams.stdDev = Number(normStd)
+      } else if (continuousDist === 'weibull') {
+        params.distParams.alpha = Number(weiAlpha)
+        params.distParams.beta = Number(weiBeta)
+      }
+    }
+
     onGenerate(params)
   }
 
@@ -63,20 +101,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="flex-1 overflow-y-auto p-4 space-y-4 scrollbar-none">
         <div className="flex items-center gap-2 px-3">
           <Settings2 className="w-4 h-4 text-primary" />
-          <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-widest font-label">Algoritmo</h3>
+          <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-widest font-label">Algoritmo Base</h3>
         </div>
 
         <form onSubmit={handleGenerate} className="space-y-4 px-3">
           {/* Method Select */}
           <div className="space-y-1.5">
-            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Método</label>
+            <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Método Pseudoaleatorio</label>
             <select
               value={method}
               onChange={(e) => setMethod(e.target.value as GeneratorMethod)}
               className="w-full bg-[#0F172A] border border-slate-800 rounded-none px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-primary transition-colors cursor-pointer"
             >
-              <option value="lineal">Congruencia Lineal</option>
-              <option value="multiplicativo">Congruencia Multiplicativa</option>
+              <option value="lineal">Congruencial Lineal / Mixto (LCG)</option>
+              <option value="multiplicativo">Congruencia Multiplicativa (MCG)</option>
               <option value="cuadrados_medios">Cuadrado Medio</option>
             </select>
           </div>
@@ -137,7 +175,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
             {/* If Lineal (requires c) */}
             {method === 'lineal' && (
               <div className="space-y-1.5">
-                <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Constante c</label>
+                <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Constante c (Incremento)</label>
                 <input
                   type="number"
                   value={c}
@@ -180,13 +218,136 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
 
+          {/* Continuous Variable Section */}
+          <div className="pt-2 border-t border-slate-800 space-y-3">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-widest font-label">Variable Continua</h3>
+            </div>
+
+            <div className="space-y-1.5">
+              <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Distribución Objetivo</label>
+              <select
+                value={continuousDist}
+                onChange={(e) => setContinuousDist(e.target.value as ContinuousDistType)}
+                className="w-full bg-[#0F172A] border border-slate-800 rounded-none px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer"
+              >
+                <option value="none">Ninguna (U[0,1] puro)</option>
+                <option value="uniform">Uniforme Continua U(A, B)</option>
+                <option value="exponential">Exponencial (λ)</option>
+                <option value="normal">Normal (μ, σ)</option>
+                <option value="weibull">Weibull (α, β)</option>
+              </select>
+            </div>
+
+            {/* Continuous Parameters */}
+            {continuousDist === 'uniform' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Límite A</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={uniformA}
+                    onChange={(e) => setUniformA(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Límite B</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={uniformB}
+                    onChange={(e) => setUniformB(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {continuousDist === 'exponential' && (
+              <div className="space-y-1 pt-1">
+                <label className="block text-[10px] text-slate-400 font-label uppercase">Tasa Lambda (λ)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.0001"
+                  value={expLambda}
+                  onChange={(e) => setExpLambda(e.target.value)}
+                  className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+            )}
+
+            {continuousDist === 'normal' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Media (μ)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    value={normMean}
+                    onChange={(e) => setNormMean(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Desviación (σ)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.0001"
+                    value={normStd}
+                    onChange={(e) => setNormStd(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {continuousDist === 'weibull' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Escala (α)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.0001"
+                    value={weiAlpha}
+                    onChange={(e) => setWeiAlpha(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Forma (β)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.0001"
+                    value={weiBeta}
+                    onChange={(e) => setWeiBeta(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
           <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-primary to-tertiary hover:opacity-90 disabled:opacity-50 text-neutral font-bold py-2.5 px-4 rounded-xl shadow-lg shadow-primary/10 transition-all duration-200 active:scale-[0.98] cursor-pointer disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xs"
           >
             <Calculator className="w-3.5 h-3.5" />
-            {isLoading ? 'Generando...' : 'Generar'}
+            {isLoading ? 'Generando...' : 'Generar Simulación'}
           </button>
         </form>
       </div>

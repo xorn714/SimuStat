@@ -14,12 +14,11 @@ def test_linear_congruential_success():
     # Ejercicio sacado del libro de simulación y análisis de sistema con Promodel (2da edición)
     # Ejemplo 2.4 página 27
     # X_0 = 37, a = 19, c = 33, m = 100
-    # X_1 = (19*37 + 33) % 100 = 736 % 100 = 36 => r_1 = 0.36
-    # X_2 = (19*36 + 33) % 100 = 717 % 100 = 17 => r_2 = 0.17
-    # X_3 = (19*17 + 33) % 100 = 356 % 100 = 56 => r_3 = 0.56
-    # X_4 = (19*56 + 33) % 100 = 1109 % 100 = 97  => r_4 = 0.97
+    # Dividido por m - 1 (99)
     results = linear_congruential(semilla=37, a=19, c=33, m=100, n=4)
-    assert results == [0.36, 0.17, 0.56, 0.97]
+    expected = [36/99, 17/99, 56/99, 97/99]
+    for r, e in zip(results, expected):
+        assert pytest.approx(r) == e
 
     # Probar con n = 0
     results_empty = linear_congruential(semilla=37, a=19, c=33, m=100, n=0)
@@ -58,13 +57,9 @@ def test_multiplicative_congruential_success():
     # Ejercicio sacado de Simulación: Un enfoque práctico (escrito por Raúl Coss Bu)
     # Tabla 2.4 en la página 27 del libro
     # X_0 = 17, a = 3, m = 100
-    # X_1 = (3*17) % 100 = 51 => r_1 = 0.51
-    # X_2 = (3*51) % 100 = 53 => r_2 = 0.53
-    # X_3 = (3*53) % 100 = 59 => r_3 = 0.59
-    # X_4 = (3*59) % 100 = 77 => r_4 = 0.77
-    # X_5 = (3*77) % 100 = 31 => r_5 = 0.31
+    # Dividido por m - 1 (99)
     results = multiplicative_congruential(semilla=17, a=3, m=100, n=5)
-    expected = [0.51, 0.53, 0.59, 0.77, 0.31]
+    expected = [51/99, 53/99, 59/99, 77/99, 31/99]
     assert len(results) == 5
     for r, e in zip(results, expected):
         assert pytest.approx(r) == e

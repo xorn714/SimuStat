@@ -59,6 +59,25 @@ class SimulationRequest(BaseModel):
         description="Parámetros para la distribución continua elegida (ej. a, b, lambd, mean, std_dev, alpha, beta)"
     )
 
+    model_config = {
+        "json_schema_extra": {
+            "examples": [
+                {
+                    "method": "lcg",
+                    "semilla": 37,
+                    "a": 19,
+                    "c": 33,
+                    "m": 100,
+                    "n": 50,
+                    "digits": 0,
+                    "alpha": 0.05,
+                    "continuous_dist": "none",
+                    "dist_params": {}
+                }
+            ]
+        }
+    }
+
 
 class SimulationResponse(BaseModel):
     """Esquema de salida con la secuencia generada y el resultado de las tres pruebas estadísticas."""

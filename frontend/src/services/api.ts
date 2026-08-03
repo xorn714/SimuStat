@@ -33,6 +33,7 @@ export async function generateSequence(
       digits: params.digits,
       alpha: params.alpha,
       continuous_dist: params.continuousDist || 'none',
+      discrete_dist: params.discreteDist || null,
       dist_params: params.distParams || null,
     }),
   })

@@ -2,7 +2,31 @@ import React, { useState } from 'react'
 import { Settings2, Calculator, Activity } from 'lucide-react'
 
 export type GeneratorMethod = 'lineal' | 'multiplicativo' | 'cuadrados_medios'
-export type ContinuousDistType = 'none' | 'uniform' | 'exponential' | 'normal' | 'weibull'
+export type ContinuousDistType = 'uniform' | 'exponential' | 'normal' | 'weibull'
+export type DiscreteDistType =
+  | 'bernoulli'
+  | 'binomial'
+  | 'poisson'
+  | 'geometric'
+  | 'negative_binomial'
+  | 'hypergeometric'
+export type DistributionType = 'none' | ContinuousDistType | DiscreteDistType
+
+const CONTINUOUS_DISTRIBUTIONS: ContinuousDistType[] = [
+  'uniform',
+  'exponential',
+  'normal',
+  'weibull',
+]
+
+const DISCRETE_DISTRIBUTIONS: DiscreteDistType[] = [
+  'bernoulli',
+  'binomial',
+  'poisson',
+  'geometric',
+  'negative_binomial',
+  'hypergeometric',
+]
 
 export interface GeneratorParams {
   method: GeneratorMethod
@@ -14,6 +38,7 @@ export interface GeneratorParams {
   quantity: number
   alpha: number
   continuousDist?: ContinuousDistType
+  discreteDist?: DiscreteDistType
   distParams?: {
     a?: number
     b?: number
@@ -22,6 +47,13 @@ export interface GeneratorParams {
     stdDev?: number
     alpha?: number
     beta?: number
+    p?: number
+    n?: number
+    r?: number
+    N?: number
+    K?: number
+    n_sample?: number
+    lambda?: number
   }
 }
 
@@ -43,8 +75,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [quantity, setQuantity] = useState<string>('100')
   const [alpha, setAlpha] = useState<string>('0.05')
 
-  // Estados para variable aleatoria continua
-  const [continuousDist, setContinuousDist] = useState<ContinuousDistType>('none')
+  // Estados para variable aleatoria (continua o discreta)
+  const [dist, setDist] = useState<DistributionType>('none')
   const [uniformA, setUniformA] = useState<string>('0')
   const [uniformB, setUniformB] = useState<string>('10')
   const [expLambda, setExpLambda] = useState<string>('0.5')
@@ -53,6 +85,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [weiAlpha, setWeiAlpha] = useState<string>('1')
   const [weiBeta, setWeiBeta] = useState<string>('1.5')
 
+  // Parámetros para distribuciones discretas
+  const [bernP, setBernP] = useState<string>('0.5')
+  const [binN, setBinN] = useState<string>('10')
+  const [binP, setBinP] = useState<string>('0.5')
+  const [poisLambda, setPoisLambda] = useState<string>('3')
+  const [geoP, setGeoP] = useState<string>('0.3')
+  const [nbR, setNbR] = useState<string>('5')
+  const [nbP, setNbP] = useState<string>('0.5')
+  const [hypN, setHypN] = useState<string>('100')
+  const [hypK, setHypK] = useState<string>('50')
+  const [hypSample, setHypSample] = useState<string>('10')
+
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault()
     const params: GeneratorParams = {
@@ -60,7 +104,6 @@ export const Sidebar: React.FC<SidebarProps> = ({
       seed: Number(seed),
       quantity: Number(quantity),
       alpha: Number(alpha),
-      continuousDist,
     }
 
     if (method === 'lineal' || method === 'multiplicativo') {
@@ -76,19 +119,42 @@ export const Sidebar: React.FC<SidebarProps> = ({
       params.digits = Number(digits)
     }
 
-    if (continuousDist !== 'none') {
+    if (dist !== 'none') {
       params.distParams = {}
-      if (continuousDist === 'uniform') {
-        params.distParams.a = Number(uniformA)
-        params.distParams.b = Number(uniformB)
-      } else if (continuousDist === 'exponential') {
-        params.distParams.lambd = Number(expLambda)
-      } else if (continuousDist === 'normal') {
-        params.distParams.mean = Number(normMean)
-        params.distParams.stdDev = Number(normStd)
-      } else if (continuousDist === 'weibull') {
-        params.distParams.alpha = Number(weiAlpha)
-        params.distParams.beta = Number(weiBeta)
+
+      if (CONTINUOUS_DISTRIBUTIONS.includes(dist as ContinuousDistType)) {
+        params.continuousDist = dist as ContinuousDistType
+        if (dist === 'uniform') {
+          params.distParams.a = Number(uniformA)
+          params.distParams.b = Number(uniformB)
+        } else if (dist === 'exponential') {
+          params.distParams.lambd = Number(expLambda)
+        } else if (dist === 'normal') {
+          params.distParams.mean = Number(normMean)
+          params.distParams.stdDev = Number(normStd)
+        } else if (dist === 'weibull') {
+          params.distParams.alpha = Number(weiAlpha)
+          params.distParams.beta = Number(weiBeta)
+        }
+      } else if (DISCRETE_DISTRIBUTIONS.includes(dist as DiscreteDistType)) {
+        params.discreteDist = dist as DiscreteDistType
+        if (dist === 'bernoulli') {
+          params.distParams.p = Number(bernP)
+        } else if (dist === 'binomial') {
+          params.distParams.n = Number(binN)
+          params.distParams.p = Number(binP)
+        } else if (dist === 'poisson') {
+          params.distParams.lambda = Number(poisLambda)
+        } else if (dist === 'geometric') {
+          params.distParams.p = Number(geoP)
+        } else if (dist === 'negative_binomial') {
+          params.distParams.r = Number(nbR)
+          params.distParams.p = Number(nbP)
+        } else if (dist === 'hypergeometric') {
+          params.distParams.N = Number(hypN)
+          params.distParams.K = Number(hypK)
+          params.distParams.n_sample = Number(hypSample)
+        }
       }
     }
 
@@ -218,18 +284,18 @@ export const Sidebar: React.FC<SidebarProps> = ({
             />
           </div>
 
-          {/* Continuous Variable Section */}
+          {/* Random Variable Section (Continuous + Discrete) */}
           <div className="pt-2 border-t border-slate-800 space-y-3">
             <div className="flex items-center gap-2">
               <Activity className="w-4 h-4 text-emerald-400" />
-              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-widest font-label">Variable Continua</h3>
+              <h3 className="text-xs font-semibold text-slate-300 uppercase tracking-widest font-label">Variable Aleatoria</h3>
             </div>
 
             <div className="space-y-1.5">
               <label className="block text-[11px] font-semibold text-slate-400 uppercase tracking-wider font-label">Distribución Objetivo</label>
               <select
-                value={continuousDist}
-                onChange={(e) => setContinuousDist(e.target.value as ContinuousDistType)}
+                value={dist}
+                onChange={(e) => setDist(e.target.value as DistributionType)}
                 className="w-full bg-[#0F172A] border border-slate-800 rounded-none px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer"
               >
                 <option value="none">Ninguna (U[0,1] puro)</option>
@@ -237,11 +303,20 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <option value="exponential">Exponencial (λ)</option>
                 <option value="normal">Normal (μ, σ)</option>
                 <option value="weibull">Weibull (α, β)</option>
+                <option disabled className="bg-slate-800 text-slate-500 font-label">
+                  ──── Variable Discreta ────
+                </option>
+                <option value="bernoulli">Bernoulli (p)</option>
+                <option value="binomial">Binomial (n, p)</option>
+                <option value="poisson">Poisson (λ)</option>
+                <option value="geometric">Geométrica (p)</option>
+                <option value="negative_binomial">Binomial Negativa (r, p)</option>
+                <option value="hypergeometric">Hipergeométrica (N, K, n)</option>
               </select>
             </div>
 
             {/* Continuous Parameters */}
-            {continuousDist === 'uniform' && (
+            {dist === 'uniform' && (
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
                   <label className="block text-[10px] text-slate-400 font-label uppercase">Límite A</label>
@@ -268,7 +343,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
 
-            {continuousDist === 'exponential' && (
+            {dist === 'exponential' && (
               <div className="space-y-1 pt-1">
                 <label className="block text-[10px] text-slate-400 font-label uppercase">Tasa Lambda (λ)</label>
                 <input
@@ -283,7 +358,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
 
-            {continuousDist === 'normal' && (
+            {dist === 'normal' && (
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
                   <label className="block text-[10px] text-slate-400 font-label uppercase">Media (μ)</label>
@@ -311,7 +386,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
               </div>
             )}
 
-            {continuousDist === 'weibull' && (
+            {dist === 'weibull' && (
               <div className="grid grid-cols-2 gap-3 pt-1">
                 <div className="space-y-1">
                   <label className="block text-[10px] text-slate-400 font-label uppercase">Escala (α)</label>
@@ -333,6 +408,152 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     min="0.0001"
                     value={weiBeta}
                     onChange={(e) => setWeiBeta(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {/* Discrete Parameters */}
+            {dist === 'bernoulli' && (
+              <div className="space-y-1 pt-1">
+                <label className="block text-[10px] text-slate-400 font-label uppercase">Probabilidad de Éxito (p)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0"
+                  max="1"
+                  value={bernP}
+                  onChange={(e) => setBernP(e.target.value)}
+                  className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+            )}
+
+            {dist === 'binomial' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Ensayos (n)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={binN}
+                    onChange={(e) => setBinN(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Probabilidad (p)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0"
+                    max="1"
+                    value={binP}
+                    onChange={(e) => setBinP(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {dist === 'poisson' && (
+              <div className="space-y-1 pt-1">
+                <label className="block text-[10px] text-slate-400 font-label uppercase">Lambda (λ)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.0001"
+                  value={poisLambda}
+                  onChange={(e) => setPoisLambda(e.target.value)}
+                  className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+            )}
+
+            {dist === 'geometric' && (
+              <div className="space-y-1 pt-1">
+                <label className="block text-[10px] text-slate-400 font-label uppercase">Probabilidad de Éxito (p)</label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.0001"
+                  max="1"
+                  value={geoP}
+                  onChange={(e) => setGeoP(e.target.value)}
+                  className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                  required
+                />
+              </div>
+            )}
+
+            {dist === 'negative_binomial' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Éxitos (r)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={nbR}
+                    onChange={(e) => setNbR(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Probabilidad (p)</label>
+                  <input
+                    type="number"
+                    step="any"
+                    min="0.0001"
+                    max="1"
+                    value={nbP}
+                    onChange={(e) => setNbP(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+
+            {dist === 'hypergeometric' && (
+              <div className="space-y-3 pt-1">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="block text-[10px] text-slate-400 font-label uppercase">Población (N)</label>
+                    <input
+                      type="number"
+                      min="1"
+                      value={hypN}
+                      onChange={(e) => setHypN(e.target.value)}
+                      className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="block text-[10px] text-slate-400 font-label uppercase">Éxitos (K)</label>
+                    <input
+                      type="number"
+                      min="0"
+                      value={hypK}
+                      onChange={(e) => setHypK(e.target.value)}
+                      className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Muestra (n)</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={hypSample}
+                    onChange={(e) => setHypSample(e.target.value)}
                     className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />

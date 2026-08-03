@@ -1,6 +1,6 @@
 # SimuStat 📊⚙️
 
-**SimuStat** es una plataforma interactiva web diseñada para la generación y validación estadística de números pseudoaleatorios. El proyecto implementa algoritmos de generación de variables uniformes, aplica pruebas formales de validación estadística para certificar la calidad de las secuencias generadas y permite transformar dichas secuencias en variables aleatorias continuas (Uniforme, Exponencial, Normal y Weibull), facilitando la comprensión y el análisis de sistemas de simulación.
+**SimuStat** es una plataforma interactiva web diseñada para la generación y validación estadística de números pseudoaleatorios. El proyecto implementa algoritmos de generación de variables uniformes, aplica pruebas formales de validación estadística para certificar la calidad de las secuencias generadas y permite transformar dichas secuencias en variables aleatorias **continuas** (Uniforme, Exponencial, Normal y Weibull) o **discretas** (Bernoulli, Binomial, Poisson, Geométrica, Binomial Negativa e Hipergeométrica), facilitando la comprensión y el análisis de sistemas de simulación.
 
 ---
 
@@ -13,7 +13,7 @@ El sistema está dividido en una arquitectura desacoplada de Cliente-Servidor (F
 
 ### 🗂️ Capas del Backend
 
-*   **`domain/`**: Contiene los algoritmos de generación, las pruebas estadísticas y el cálculo de estadísticos continuos (lógica de negocio pura).
+*   **`domain/`**: Contiene los algoritmos de generación, las pruebas estadísticas y el cálculo de estadísticos continuos y discretos (lógica de negocio pura).
 *   **`services/`**: Orquesta el flujo completo de la simulación (`SimulationService`).
 *   **`adapter/`**: Define los esquemas Pydantic, las rutas API y el enrutador v1.
 
@@ -46,9 +46,22 @@ Partiendo de la secuencia base $U(0,1)$, la plataforma permite transformarla (m�
 
 Para cada distribución se calculan los estadísticos empíricos vs teóricos (media y varianza) y se genera un histograma de frecuencias con la curva de densidad teórica superpuesta.
 
+### 3. Generación de Variables Aleatorias Discretas
+
+Partiendo de la misma secuencia base $U(0,1)$, la plataforma permite generar variables aleatorias discretas mediante el **método de la transformada inversa** sobre la función de masa de probabilidad $P(X = k)$:
+
+*   **Bernoulli** $\text{Bernoulli}(p)$: $X = 1$ si $U < p$, en caso contrario $X = 0$.
+*   **Binomial** $\text{Binomial}(n, p)$: suma de $n$ variables Bernoulli independientes (consume $n$ números uniformes por observación).
+*   **Poisson** $\text{Poisson}(\lambda)$: transformada inversa usando la relación recursiva $P(X = k) = P(X = k-1) \cdot \frac{\lambda}{k}$.
+*   **Geométrica** $\text{Geo}(p)$: $X = \left\lceil \frac{\ln(1 - U)}{\ln(1 - p)} \right\rceil$.
+*   **Binomial Negativa** $\text{NB}(r, p)$: suma de $r$ variables geométricas independientes.
+*   **Hipergeométrica** $\text{HG}(N, K, n)$: muestreo secuencial sin reemplazo.
+
+Para cada distribución se calculan los estadísticos empíricos vs teóricos (media y varianza), la tabla de frecuencias y un histograma de barras comparando la frecuencia relativa empírica con la PMF teórica.
+
 ---
 
-### 3. Pruebas Estadísticas de Validación
+### 4. Pruebas Estadísticas de Validación
 Para certificar que una secuencia generada $R = \{r_1, r_2, \dots, r_n\}$ se comporta efectivamente como una distribución uniforme $U(0, 1)$, se aplican cuatro pruebas fundamentales:
 
 #### A. Prueba de Media (Validación del Valor Esperado)
@@ -249,10 +262,12 @@ SimuStat/
 │   │   │   ├── generators/             # Generadores de números pseudoaleatorios
 │   │   │   │   ├── base.py             # Clase abstracta Generator y validaciones
 │   │   │   │   ├── congruential.py     # LCG, MCG y Mid-Square
-│   │   │   │   └── continuous.py       # Distribuciones continuas (Uniforme, Exp, Normal, Weibull)
+│   │   │   │   ├── continuous.py       # Distribuciones continuas (Uniforme, Exp, Normal, Weibull)
+│   │   │   │   └── discrete.py         # Distribuciones discretas (Bernoulli, Binomial, Poisson, etc.)
 │   │   │   ├── validators/             # Pruebas estadísticas (media, varianza, KS y rachas)
 │   │   │   └── stats/
-│   │   │       └── continuous_stats.py # Estadísticos empíricos/teóricos e histograma
+│   │   │       ├── continuous_stats.py # Estadísticos empíricos/teóricos e histograma continuo
+│   │   │       └── discret_stats.py    # Estadísticos empíricos/teóricos e histograma discreto
 │   │   ├── services/
 │   │   │   └── simulation_service.py  # Orquestación de la simulación
 │   │   └── adapter/
@@ -275,9 +290,10 @@ SimuStat/
 │   │   │   └── layout/       # Navbar y Sidebar (configuración del generador)
 │   │   ├── features/
 │   │   │   ├── dashboard/    # Dashboard, gráficas y tarjetas de pruebas
-│   │   │   │   ├── components/  # Tabla e histograma de variables continuas
+│   │   │   │   ├── components/  # Tablas, histogramas y estadísticos de variables continuas y discretas
 │   │   │   │   ├── Grafica.tsx, DistribucionUniforme.tsx
 │   │   │   │   ├── TestMedia.tsx, TestVarianza.tsx, TestKS.tsx, TestRacha.tsx
+│   │   │   │   ├── discretePmf.ts, formatTestStatistic.ts
 │   │   │   │   └── types.ts
 │   │   │   ├── generators/   # Lógica de generadores (frontend)
 │   │   │   └── validation/   # Lógica de validación (frontend)
@@ -296,4 +312,4 @@ SimuStat/
 |--------|-------------------------|-----------------------------------------------------------------------------|
 | `GET`  | `/`                     | Mensaje de bienvenida.                                                      |
 | `GET`  | `/docs`                 | Documentación interactiva (Swagger UI).                                     |
-| `POST` | `/api/v1/generate-sequence` | Genera una secuencia (LCG, MCG o Mid-Square), aplica las 4 pruebas estadísticas y opcionalmente genera una variable continua con su histograma. |
+| `POST` | `/api/v1/generate-sequence` | Genera una secuencia (LCG, MCG o Mid-Square), aplica las 4 pruebas estadísticas y opcionalmente genera una variable aleatoria (continua o discreta) con sus estadísticos e histograma. |

@@ -245,9 +245,14 @@ SimuStat/
 │   ├── app/
 │   │   ├── main.py          # Instancia de FastAPI, CORS y router principal
 │   │   ├── domain/          # Lógica de negocio pura
-│   │   │   ├── generators.py        # LCG, MCG, Mid-Square y distribuciones continuas
-│   │   │   ├── validators.py        # Pruebas de media, varianza, KS y rachas
-│   │   │   └── continuous_stats.py  # Estadísticos empíricos/teóricos e histograma
+│   │   │   ├── exceptions.py           # Jerarquía de excepciones del dominio
+│   │   │   ├── generators/             # Generadores de números pseudoaleatorios
+│   │   │   │   ├── base.py             # Clase abstracta Generator y validaciones
+│   │   │   │   ├── congruential.py     # LCG, MCG y Mid-Square
+│   │   │   │   └── continuous.py       # Distribuciones continuas (Uniforme, Exp, Normal, Weibull)
+│   │   │   ├── validators/             # Pruebas estadísticas (media, varianza, KS y rachas)
+│   │   │   └── stats/
+│   │   │       └── continuous_stats.py # Estadísticos empíricos/teóricos e histograma
 │   │   ├── services/
 │   │   │   └── simulation_service.py  # Orquestación de la simulación
 │   │   └── adapter/

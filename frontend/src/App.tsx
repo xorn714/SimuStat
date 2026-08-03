@@ -61,6 +61,8 @@ function App() {
                   {lastParams.c !== undefined && <div><span className="text-slate-500">Constante c:</span> {lastParams.c}</div>}
                   {lastParams.m !== undefined && <div><span className="text-slate-500">Módulo m:</span> {lastParams.m}</div>}
                   {lastParams.digits !== undefined && <div><span className="text-slate-500">Dígitos:</span> {lastParams.digits}</div>}
+                  {lastParams.continuousDist && <div><span className="text-slate-500">Dist. Continua:</span> {lastParams.continuousDist}</div>}
+                  {lastParams.discreteDist && <div><span className="text-slate-500">Dist. Discreta:</span> {lastParams.discreteDist}</div>}
                 </div>
               </div>
             )}
@@ -80,7 +82,13 @@ function App() {
               </div>
             )}
 
-            {!isLoading && simulationData && <Dashboard data={simulationData} />}
+            {!isLoading && simulationData && (
+              <Dashboard
+                data={simulationData}
+                distName={lastParams?.continuousDist || lastParams?.discreteDist}
+                distParams={lastParams?.distParams}
+              />
+            )}
 
             {!isLoading && !simulationData && !error && (
               <div className="flex flex-col items-center justify-center py-20 border border-dashed border-slate-800 rounded-2xl bg-[#171F33]/20">

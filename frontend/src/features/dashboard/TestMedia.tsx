@@ -1,5 +1,6 @@
 import React from 'react'
 import type { TestResult } from './types'
+import { formatTestStatistic } from './formatTestStatistic'
 
 interface TestMediaProps {
   result: TestResult | null
@@ -40,7 +41,7 @@ export const TestMedia: React.FC<TestMediaProps> = ({ result }) => {
           <div className="flex justify-between">
             <span className="text-slate-400">Estadístico:</span>
             <span className={passed ? 'text-green-300' : 'text-red-300'}>
-              {result.statistic.toFixed(6)}
+              {formatTestStatistic(result.statistic)}
             </span>
           </div>
           <div className="flex justify-between">

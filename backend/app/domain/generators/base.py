@@ -29,3 +29,19 @@ def validate_positive_lambda(lambd: float) -> None:
         raise GeneratorValidationError(
             f"El parámetro lambda '{lambd}' debe ser mayor que 0."
         )
+
+
+def validate_probability(p: float) -> None:
+    """Valida que una probabilidad esté en [0, 1]."""
+    if not 0 <= p <= 1:
+        raise GeneratorValidationError(
+            f"La probabilidad 'p' ({p}) debe estar en [0, 1]."
+        )
+
+
+def validate_positive_count(n: int) -> None:
+    """Valida que un conteo sea un entero positivo."""
+    if n <= 0:
+        raise GeneratorValidationError(
+            f"El conteo 'n' ({n}) debe ser mayor que 0."
+        )

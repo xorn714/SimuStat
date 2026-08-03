@@ -5,12 +5,13 @@ from ..exceptions import StatisticalTestError
 
 
 class RunsTest:
-    """Prueba de rachas (runs test) arriba y abajo de la media 0.5."""
+    """Prueba de rachas (runs test) arriba y abajo de un umbral (por defecto la media 0.5)."""
 
-    def __init__(self, alpha: float = 0.05):
+    def __init__(self, alpha: float = 0.05, threshold: float = 0.5):
         if not 0 < alpha < 1:
             raise StatisticalTestError("alpha debe estar en (0, 1).")
         self.alpha = alpha
+        self.threshold = threshold
         self.z_critical = float(norm.ppf(1 - alpha / 2))
 
     def test(self, numbers: List[float]) -> Tuple[Tuple[float, float], float, bool]:
@@ -26,7 +27,7 @@ class RunsTest:
                 "El tamaño de la muestra debe ser mayor que 1 para la prueba de rachas."
             )
 
-        signs = [1 if x >= 0.5 else 0 for x in numbers]
+        signs = [1 if x >= self.threshold else 0 for x in numbers]
         n1 = sum(signs)
         n2 = n - n1
 

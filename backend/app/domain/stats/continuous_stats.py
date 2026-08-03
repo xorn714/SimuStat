@@ -8,6 +8,35 @@ class ContinuousStatsCalculator:
     """Calcula estadísticos empíricos y teóricos e histograma para distribuciones continuas."""
 
     @staticmethod
+    def get_cdf(dist_name: str, dist_params: Dict[str, float]):
+        """Devuelve la función de distribución acumulada teórica F(x) de una distribución continua."""
+        dist = dist_name.lower()
+
+        if dist == "uniform":
+            a = dist_params.get("a", 0.0)
+            b = dist_params.get("b", 1.0)
+            return lambda x: 0.0 if x < a else (1.0 if x > b else (x - a) / (b - a))
+
+        elif dist == "exponential":
+            lambd = dist_params.get("lambd", 1.0)
+            return lambda x: 0.0 if x <= 0 else 1.0 - math.exp(-lambd * x)
+
+        elif dist == "normal":
+            from scipy.stats import norm
+            mean = dist_params.get("mean", 0.0)
+            std_dev = dist_params.get("std_dev", 1.0)
+            return lambda x: float(norm.cdf(x, loc=mean, scale=std_dev))
+
+        elif dist == "weibull":
+            alpha = dist_params.get("alpha", 1.0)
+            beta = dist_params.get("beta", 1.0)
+            return lambda x: 0.0 if x <= 0 else 1.0 - math.exp(-((x / alpha) ** beta))
+
+        raise StatsCalculationError(
+            f"Distribución continua no soportada para CDF: '{dist_name}'."
+        )
+
+    @staticmethod
     def calculate_stats(
         values: List[float],
         dist_name: str,

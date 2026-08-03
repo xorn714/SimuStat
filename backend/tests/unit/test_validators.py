@@ -71,3 +71,78 @@ def test_runs_test():
     limits_bad, statistic_bad, passed_bad = RunsTest(0.05).test(numbers_bad)
     assert passed_bad is False
     assert statistic_bad == float('inf')
+
+
+def test_mean_test_adapted_to_distribution():
+    # Muestra Normal(10, 2²) simulada: media empírica cercana a 10
+    np.random.seed(7)
+    numbers = np.random.normal(10.0, 2.0, 500).tolist()
+    limits, statistic, passed = MeanTest(
+        0.05, expected_mean=10.0, expected_variance=4.0
+    ).test(numbers)
+    assert passed is True
+    assert limits[0] <= statistic <= limits[1]
+
+    # Muestra centrada en otro valor: debe fallar contra la media 10
+    numbers_bad = np.random.normal(12.0, 2.0, 500).tolist()
+    _, _, passed_bad = MeanTest(
+        0.05, expected_mean=10.0, expected_variance=4.0
+    ).test(numbers_bad)
+    assert passed_bad is False
+
+
+def test_variance_test_adapted_to_distribution():
+    np.random.seed(7)
+    numbers = np.random.normal(0.0, 3.0, 500).tolist()
+    limits, statistic, passed = VarianceTest(0.05, expected_variance=9.0).test(numbers)
+    assert passed is True
+    assert limits[0] <= statistic <= limits[1]
+
+    numbers_bad = np.random.normal(0.0, 5.0, 500).tolist()
+    _, _, passed_bad = VarianceTest(0.05, expected_variance=9.0).test(numbers_bad)
+    assert passed_bad is False
+
+
+def test_ks_test_adapted_to_cdf():
+    from scipy.stats import norm, expon
+    from app.domain.stats import ContinuousStatsCalculator
+
+    np.random.seed(7)
+    numbers = np.random.exponential(scale=1.0, size=500).tolist()
+    cdf = ContinuousStatsCalculator.get_cdf("exponential", {"lambd": 1.0})
+    limits, statistic, passed = KSTest(0.05, cdf=cdf).test(numbers)
+    assert passed is True
+    assert statistic < limits[1]
+
+    # Misma muestra probada contra una CDF normal: debe fallar
+    bad_cdf = ContinuousStatsCalculator.get_cdf("normal", {"mean": 1.0, "std_dev": 1.0})
+    _, _, passed_bad = KSTest(0.05, cdf=bad_cdf).test(numbers)
+    assert passed_bad is False
+
+
+def test_ks_test_discrete_with_pmf():
+    from app.domain.generators import DiscreteDistributionGenerator
+    from app.domain.stats import DiscreteStatsCalculator
+
+    np.random.seed(42)
+    u = np.random.uniform(0, 1, 5000).tolist()
+    values = DiscreteDistributionGenerator.binomial(u, 15, 0.5)
+    cdf = DiscreteStatsCalculator.get_cdf("binomial", {"n": 15, "p": 0.5})
+    pmf = DiscreteStatsCalculator.get_pmf("binomial", {"n": 15, "p": 0.5})
+
+    limits, statistic, passed = KSTest(0.05, cdf=cdf, pmf=pmf).test(values)
+    assert passed is True
+    assert statistic < limits[1]
+
+
+def test_runs_test_adapted_threshold():
+    # Muestra Bernoulli(0.5) con umbral en la media 0.5: pasa (independencia)
+    np.random.seed(42)
+    numbers = np.random.binomial(1, 0.5, 200).tolist()
+    limits, statistic, passed = RunsTest(0.05, threshold=0.5).test(numbers)
+    assert passed is True
+
+    # Secuencia alternada de Bernoulli: demasiadas rachas => falla
+    numbers_alt = [0, 1] * 50
+    _, _, passed_alt = RunsTest(0.05, threshold=0.5).test(numbers_alt)
+    assert passed_alt is False

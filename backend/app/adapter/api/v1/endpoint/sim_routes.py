@@ -2,7 +2,7 @@
 from fastapi import APIRouter, HTTPException, status
 from app.adapter.api.schema import SimulationRequest, SimulationResponse
 from app.services.simulation_service import SimulationService
-from app.domain.generators import GeneratorValidationError
+from app.domain.exceptions import GeneratorValidationError
 
 router = APIRouter()
 

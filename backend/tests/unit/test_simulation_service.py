@@ -2,7 +2,7 @@
 import pytest
 from app.adapter.api.schema import SimulationRequest
 from app.services.simulation_service import SimulationService
-from app.domain.generators import GeneratorValidationError
+from app.domain.exceptions import GeneratorValidationError
 
 
 def test_simulation_service_lcg_success():

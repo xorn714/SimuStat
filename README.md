@@ -1,6 +1,6 @@
 # SimuStat 📊⚙️
 
-**SimuStat** es una plataforma interactiva web diseñada para la generación y validación estadística de números pseudoaleatorios. El proyecto implementa algoritmos de generación de variables uniformes, aplica pruebas formales de validación estadística para certificar la calidad de las secuencias generadas y permite transformar dichas secuencias en variables aleatorias **continuas** (Uniforme, Exponencial, Normal y Weibull) o **discretas** (Bernoulli, Binomial, Poisson, Geométrica, Binomial Negativa e Hipergeométrica), facilitando la comprensión y el análisis de sistemas de simulación.
+**SimuStat** es una plataforma interactiva web diseñada para la generación y validación estadística de números pseudoaleatorios. El proyecto implementa algoritmos de generación de variables uniformes, aplica pruebas formales de validación estadística para certificar la calidad de las secuencias generadas y permite transformar dichas secuencias en variables aleatorias **continuas** (Uniforme, Exponencial, Normal y Weibull) o **discretas** (Bernoulli, Binomial, Poisson, Geométrica, Binomial Negativa, Hipergeométrica y Uniforme Discreta), facilitando la comprensión y el análisis de sistemas de simulación.
 
 ---
 
@@ -40,7 +40,7 @@ El proyecto genera secuencias de números pseudoaleatorios en el intervalo $[0, 
 Partiendo de la secuencia base $U(0,1)$, la plataforma permite transformarla (método de la transformada inversa y Box-Muller) en las siguientes distribuciones continuas:
 
 *   **Uniforme Continua** $U(a, b)$: $X = a + (b - a) \cdot U$
-*   **Exponencial** $\text{Exp}(\lambda)$: $X = -\frac{1}{\lambda} \ln(1 - U)$
+*   **Exponencial** $\text{Exp}(\beta)$: $X = -\beta \ln(1 - U)$ (parametrizada por su tiempo medio/escala $\beta$)
 *   **Normal** $N(\mu, \sigma^2)$: mediante la transformación de **Box-Muller**.
 *   **Weibull** $\text{Weibull}(\alpha, \beta)$: $X = \alpha \cdot (-\ln(1 - U))^{1/\beta}$
 
@@ -53,9 +53,10 @@ Partiendo de la misma secuencia base $U(0,1)$, la plataforma permite generar var
 *   **Bernoulli** $\text{Bernoulli}(p)$: $X = 1$ si $U < p$, en caso contrario $X = 0$.
 *   **Binomial** $\text{Binomial}(n, p)$: suma de $n$ variables Bernoulli independientes (consume $n$ números uniformes por observación).
 *   **Poisson** $\text{Poisson}(\lambda)$: transformada inversa usando la relación recursiva $P(X = k) = P(X = k-1) \cdot \frac{\lambda}{k}$.
-*   **Geométrica** $\text{Geo}(p)$: $X = \left\lceil \frac{\ln(1 - U)}{\ln(1 - p)} \right\rceil$.
+*   **Geométrica** $\text{Geo}(p)$: $X = \left\lfloor \frac{\ln(1 - U)}{\ln(1 - p)} \right\rfloor$ (rango $\{0, 1, 2, \dots\}$ representando el número de fracasos antes del primer éxito).
 *   **Binomial Negativa** $\text{NB}(r, p)$: suma de $r$ variables geométricas independientes.
 *   **Hipergeométrica** $\text{HG}(N, K, n)$: muestreo secuencial sin reemplazo.
+*   **Uniforme Discreta** $\text{UD}(i, j)$: $X = i + \lfloor U \cdot (j - i + 1) \rfloor$ (rango $\{i, \dots, j\}$).
 
 Para cada distribución se calculan los estadísticos empíricos vs teóricos (media y varianza), la tabla de frecuencias y un histograma de barras comparando la frecuencia relativa empírica con la PMF teórica.
 

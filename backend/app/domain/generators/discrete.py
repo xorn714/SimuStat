@@ -101,16 +101,16 @@ class DiscreteDistributionGenerator:
     def geometric(u_list: List[float], p: float) -> List[int]:
         """
         Genera una muestra de Geométrica(p).
-        X = número de ensayos hasta el primer éxito.
+        X = número de fracasos antes del primer éxito.
         
         Args:
             u_list: Lista de números U(0,1)
             p: Probabilidad de éxito (0 < p <= 1)
         
         Returns:
-            Lista de valores enteros >= 1
+            Lista de valores enteros >= 0
         
-        Fórmula: X = ceil(ln(1-U) / ln(1-p))
+        Fórmula: X = floor(ln(1-U) / ln(1-p))
         """
         if not 0 < p <= 1:
             raise GeneratorValidationError(
@@ -123,8 +123,8 @@ class DiscreteDistributionGenerator:
         for u in u_list:
             u_safe = max(min(u, 1.0 - 1e-12), 1e-12)
 
-            x = math.ceil(math.log(1 - u_safe) / math.log(1 - p))
-            x = max(x, 1)
+            x = math.floor(math.log(1.0 - u_safe) / math.log(1.0 - p))
+            x = max(x, 0)
             results.append(x)
         
         return results
@@ -230,3 +230,17 @@ class DiscreteDistributionGenerator:
             results.append(successes)
         
         return results
+
+    @staticmethod
+    def uniform_discrete(u_list: List[float], i: int, j: int) -> List[int]:
+        """
+        Genera una muestra de Uniforme Discreta UD(i, j).
+        """
+        if i >= j:
+            raise GeneratorValidationError(
+                f"El límite inferior 'i' ({i}) debe ser menor que el límite superior 'j' ({j})."
+            )
+        if not validate_uniform_sequence(u_list):
+            raise GeneratorValidationError("La secuencia debe estar en [0, 1).")
+        
+        return [i + math.floor(u * (j - i + 1)) for u in u_list]

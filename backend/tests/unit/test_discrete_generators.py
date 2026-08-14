@@ -53,8 +53,8 @@ def test_poisson_validation():
 
 
 def test_geometric_deterministic():
-    # X = ceil(ln(1-u) / ln(1-p))
-    assert DiscreteDistributionGenerator.geometric([0.0, 0.5, 0.9], 0.5) == [1, 1, 4]
+    # X = floor(ln(1-u) / ln(1-p))
+    assert DiscreteDistributionGenerator.geometric([0.0, 0.5, 0.9], 0.5) == [0, 1, 3]
 
 
 def test_geometric_validation():

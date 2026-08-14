@@ -108,8 +108,8 @@ def test_ks_test_adapted_to_cdf():
     from app.domain.stats import ContinuousStatsCalculator
 
     np.random.seed(7)
-    numbers = np.random.exponential(scale=1.0, size=500).tolist()
-    cdf = ContinuousStatsCalculator.get_cdf("exponential", {"lambd": 1.0})
+    numbers = np.random.exponential(scale=2.0, size=500).tolist()
+    cdf = ContinuousStatsCalculator.get_cdf("exponential", {"lambd": 2.0})
     limits, statistic, passed = KSTest(0.05, cdf=cdf).test(numbers)
     assert passed is True
     assert statistic < limits[1]

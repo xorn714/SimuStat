@@ -18,16 +18,16 @@ class ContinuousDistributionGenerator:
         return [a + (b - a) * u for u in u_list]
     
     @staticmethod
-    def exponential(u_list: List[float], lambd: float) -> List[float]:
-        """Genera Exponencial con tasa lambda."""
-        validate_positive_lambda(lambd)
+    def exponential(u_list: List[float], beta: float) -> List[float]:
+        """Genera Exponencial con media beta (tiempo promedio)."""
+        validate_positive_lambda(beta)
         if not validate_uniform_sequence(u_list):
             raise GeneratorValidationError("La secuencia debe estar en [0, 1].")
         
         results = []
         for u in u_list:
             u_safe = max(min(u, 1.0 - 1e-12), 1e-12)
-            val = -(1.0 / lambd) * math.log(1.0 - u_safe)
+            val = -beta * math.log(1.0 - u_safe)
             results.append(val)
         return results
     

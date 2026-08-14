@@ -258,11 +258,17 @@ class SimulationService:
                 discrete_vals = DiscreteDistributionGenerator.hypergeometric(
                     numbers, N, K, n
                 )
+            elif dist_name == "uniform_discrete":
+                i = int(params.get("i", 1))
+                j = int(params.get("j", 6))
+                discrete_vals = DiscreteDistributionGenerator.uniform_discrete(
+                    numbers, i, j
+                )
             else:
                 raise GeneratorValidationError(
                     f"Distribución discreta no soportada: '{request.distribution_name}'. "
                     "Válidas: 'bernoulli', 'binomial', 'poisson', 'geometric', "
-                    "'negative_binomial', 'hypergeometric'."
+                    "'negative_binomial', 'hypergeometric', 'uniform_discrete'."
                 )
 
             if not discrete_vals:

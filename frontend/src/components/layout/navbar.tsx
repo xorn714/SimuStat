@@ -18,7 +18,7 @@ export const Navbar: React.FC = () => {
 
     return (
         <nav className="border-b border-slate-800 bg-[#171F33] backdrop-blur-xl sticky top-0 z-50">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div className="w-full px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
                 {/* Logo / Marca */}
                 <div className="flex items-center gap-2">
                     <span className="text-2xl tracking-wider text-primary font-headline">

@@ -56,6 +56,8 @@ export interface GeneratorParams {
     K?: number
     n_sample?: number
     lambda?: number
+    i?: number
+    j?: number
   }
 }
 

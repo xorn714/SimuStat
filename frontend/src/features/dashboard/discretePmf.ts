@@ -6,6 +6,8 @@ export type DiscretePmfParams = {
   K?: number
   n_sample?: number
   lambda?: number
+  i?: number
+  j?: number
 }
 
 function combination(n: number, k: number): number {
@@ -41,7 +43,7 @@ export function getDiscretePmf(distName: string, params: DiscretePmfParams) {
     }
 
     case 'geometric':
-      return (k: number) => (k >= 1 ? (1 - p) ** (k - 1) * p : 0)
+      return (k: number) => (k >= 0 ? (1 - p) ** k * p : 0)
 
     case 'negative_binomial': {
       const r = params.r ?? 5
@@ -60,6 +62,12 @@ export function getDiscretePmf(distName: string, params: DiscretePmfParams) {
         if (k < lo || k > hi || denom === 0) return 0
         return (combination(K, k) * combination(N - K, n - k)) / denom
       }
+    }
+
+    case 'uniform_discrete': {
+      const i = params.i ?? 1
+      const j = params.j ?? 6
+      return (k: number) => (i <= k && k <= j ? 1 / (j - i + 1) : 0)
     }
 
     default:

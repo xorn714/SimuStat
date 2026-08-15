@@ -10,6 +10,7 @@ export type DiscreteDistType =
   | 'geometric'
   | 'negative_binomial'
   | 'hypergeometric'
+  | 'uniform_discrete'
 export type DistributionType = 'none' | ContinuousDistType | DiscreteDistType
 
 const CONTINUOUS_DISTRIBUTIONS: ContinuousDistType[] = [
@@ -26,6 +27,7 @@ const DISCRETE_DISTRIBUTIONS: DiscreteDistType[] = [
   'geometric',
   'negative_binomial',
   'hypergeometric',
+  'uniform_discrete',
 ]
 
 export interface GeneratorParams {
@@ -54,6 +56,8 @@ export interface GeneratorParams {
     K?: number
     n_sample?: number
     lambda?: number
+    i?: number
+    j?: number
   }
 }
 
@@ -96,6 +100,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
   const [hypN, setHypN] = useState<string>('100')
   const [hypK, setHypK] = useState<string>('50')
   const [hypSample, setHypSample] = useState<string>('10')
+  const [udI, setUdI] = useState<string>('1')
+  const [udJ, setUdJ] = useState<string>('6')
 
   const handleGenerate = (e: React.FormEvent) => {
     e.preventDefault()
@@ -154,6 +160,9 @@ export const Sidebar: React.FC<SidebarProps> = ({
           params.distParams.N = Number(hypN)
           params.distParams.K = Number(hypK)
           params.distParams.n_sample = Number(hypSample)
+        } else if (dist === 'uniform_discrete') {
+          params.distParams.i = Number(udI)
+          params.distParams.j = Number(udJ)
         }
       }
     }
@@ -312,6 +321,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 <option value="geometric">Geométrica (p)</option>
                 <option value="negative_binomial">Binomial Negativa (r, p)</option>
                 <option value="hypergeometric">Hipergeométrica (N, K, n)</option>
+                <option value="uniform_discrete">Uniforme Discreta (i, j)</option>
               </select>
             </div>
 
@@ -345,7 +355,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
 
             {dist === 'exponential' && (
               <div className="space-y-1 pt-1">
-                <label className="block text-[10px] text-slate-400 font-label uppercase">Tasa Lambda (λ)</label>
+                <label className="block text-[10px] text-slate-400 font-label uppercase">Media (λ o β)</label>
                 <input
                   type="number"
                   step="any"
@@ -554,6 +564,30 @@ export const Sidebar: React.FC<SidebarProps> = ({
                     min="0"
                     value={hypSample}
                     onChange={(e) => setHypSample(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+              </div>
+            )}
+            {dist === 'uniform_discrete' && (
+              <div className="grid grid-cols-2 gap-3 pt-1">
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Límite Inferior (i)</label>
+                  <input
+                    type="number"
+                    value={udI}
+                    onChange={(e) => setUdI(e.target.value)}
+                    className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
+                    required
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="block text-[10px] text-slate-400 font-label uppercase">Límite Superior (j)</label>
+                  <input
+                    type="number"
+                    value={udJ}
+                    onChange={(e) => setUdJ(e.target.value)}
                     className="w-full bg-[#0F172A] border border-slate-800 px-2 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-emerald-500"
                     required
                   />

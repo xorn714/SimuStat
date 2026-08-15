@@ -1,4 +1,5 @@
 # pyrefly: ignore [missing-import]
+import math
 import pytest
 from app.domain.exceptions import GeneratorValidationError
 from app.domain.generators import ContinuousDistributionGenerator
@@ -22,10 +23,10 @@ def test_uniform_continuous_rejects_out_of_range():
 
 def test_exponential_continuous():
     u_list = [0.0, 0.5]
-    res = ContinuousDistributionGenerator.exponential(u_list, 0.5)
+    res = ContinuousDistributionGenerator.exponential(u_list, 2.0)
     assert len(res) == 2
-    assert res[0] >= 0
-    assert res[1] > 0
+    assert math.isclose(res[0], 0.0, abs_tol=1e-9)
+    assert math.isclose(res[1], -2.0 * math.log(0.5))
 
     with pytest.raises(GeneratorValidationError):
         ContinuousDistributionGenerator.exponential(u_list, -1.0)

@@ -42,7 +42,7 @@ class RunsTest:
         if n1 == 0 or n2 == 0:
             return (lower_limit, upper_limit), float("inf"), False
 
-        mu_runs = (2 * n1 * n2) / n + 1.0
+        mu_runs = (2 * n1 * n2) / n + 0.5
 
         var_numerator = 2 * n1 * n2 * (2 * n1 * n2 - n)
         var_denominator = (n ** 2) * (n - 1)

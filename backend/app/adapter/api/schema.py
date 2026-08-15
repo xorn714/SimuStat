@@ -91,7 +91,7 @@ class SimulationRequest(BaseModel):
     distribution_name: Optional[str] = Field(
         None,
         description="Nombre de la distribución: continuas ('uniform', 'exponential', 'normal', 'weibull') "
-                    "o discretas ('bernoulli', 'binomial', 'poisson', 'geometric', 'negative_binomial', 'hypergeometric')"
+                    "o discretas ('bernoulli', 'binomial', 'poisson', 'geometric', 'negative_binomial', 'hypergeometric', 'uniform_discrete')"
     )
     continuous_dist: Optional[str] = Field(
         None,
@@ -100,11 +100,11 @@ class SimulationRequest(BaseModel):
     discrete_dist: Optional[str] = Field(
         None,
         description="Distribución discreta (compatibilidad): 'bernoulli', 'binomial', 'poisson', "
-                    "'geometric', 'negative_binomial', 'hypergeometric'"
+                    "'geometric', 'negative_binomial', 'hypergeometric', 'uniform_discrete'"
     )
     dist_params: Optional[dict] = Field(
         None,
-        description="Parámetros de la distribución elegida (ej. a, b, lambd, mean, std_dev, alpha, beta, p, n, r, N, K)"
+        description="Parámetros de la distribución elegida (ej. a, b, lambd, mean, std_dev, alpha, beta, p, n, r, N, K, i, j)"
     )
 
     model_config = {

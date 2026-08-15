@@ -18,8 +18,8 @@ class ContinuousStatsCalculator:
             return lambda x: 0.0 if x < a else (1.0 if x > b else (x - a) / (b - a))
 
         elif dist == "exponential":
-            lambd = dist_params.get("lambd", 1.0)
-            return lambda x: 0.0 if x <= 0 else 1.0 - math.exp(-lambd * x)
+            beta = dist_params.get("lambd", 1.0)
+            return lambda x: 0.0 if x <= 0 else 1.0 - math.exp(-x / beta)
 
         elif dist == "normal":
             from scipy.stats import norm
@@ -70,10 +70,10 @@ class ContinuousStatsCalculator:
             pdf_func = lambda x: (1.0 / (b - a)) if a <= x <= b else 0.0
 
         elif dist == "exponential":
-            lambd = dist_params.get("lambd", 1.0)
-            theo_mean = 1.0 / lambd
-            theo_var = 1.0 / (lambd ** 2)
-            pdf_func = lambda x: (lambd * math.exp(-lambd * x)) if x >= 0 else 0.0
+            beta = dist_params.get("lambd", 1.0)
+            theo_mean = beta
+            theo_var = beta ** 2
+            pdf_func = lambda x: ((1.0 / beta) * math.exp(-x / beta)) if x >= 0 else 0.0
 
         elif dist == "normal":
             mean = dist_params.get("mean", 0.0)

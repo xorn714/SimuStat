@@ -53,7 +53,12 @@ class DiscreteStatsCalculator:
 
         elif dist == "geometric":
             p = dist_params.get('p', 0.5)
-            return lambda k: ((1.0 - p) ** (k - 1)) * p if k >= 1 else 0.0
+            return lambda k: ((1.0 - p) ** k) * p if k >= 0 else 0.0
+
+        elif dist == "uniform_discrete":
+            i = int(dist_params.get('i', 1))
+            j = int(dist_params.get('j', 6))
+            return lambda k: 1.0 / (j - i + 1) if i <= k <= j else 0.0
 
         elif dist == "negative_binomial":
             r = int(dist_params.get('r', 5))
@@ -93,7 +98,11 @@ class DiscreteStatsCalculator:
         elif dist == "poisson":
             return DiscreteStatsCalculator._cdf_from_pmf(pmf, 0)
         elif dist == "geometric":
-            return DiscreteStatsCalculator._cdf_from_pmf(pmf, 1)
+            return DiscreteStatsCalculator._cdf_from_pmf(pmf, 0)
+        elif dist == "uniform_discrete":
+            i = int(dist_params.get('i', 1))
+            j = int(dist_params.get('j', 6))
+            return DiscreteStatsCalculator._cdf_from_pmf(pmf, i, end=j)
         elif dist == "negative_binomial":
             r = int(dist_params.get('r', 5))
             return DiscreteStatsCalculator._cdf_from_pmf(pmf, r)
@@ -121,7 +130,7 @@ class DiscreteStatsCalculator:
         Args:
             values: Lista de valores generados
             dist_name: Tipo de distribución ('bernoulli', 'binomial', 'poisson', 
-                      'geometric', 'negative_binomial', 'hypergeometric')
+                      'geometric', 'negative_binomial', 'hypergeometric', 'uniform_discrete')
             dist_params: Parámetros de la distribución
         
         Returns:
@@ -191,8 +200,14 @@ class DiscreteStatsCalculator:
             
         elif dist_name == "geometric":
             p = params.get('p', 0.5)
-            mean = 1.0 / p
+            mean = (1.0 - p) / p
             variance = (1.0 - p) / (p * p)
+
+        elif dist_name == "uniform_discrete":
+            i = params.get('i', 1)
+            j = params.get('j', 6)
+            mean = (i + j) / 2.0
+            variance = ((j - i + 1) ** 2 - 1) / 12.0
             
         elif dist_name == "negative_binomial":
             r = params.get('r', 5)
